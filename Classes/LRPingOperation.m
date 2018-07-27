@@ -124,10 +124,11 @@ static NSString * DisplayAddressForAddress(NSData * address)
     [self.pinger start];
    
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:_timeoutLimit];
+
     do {
         [[NSRunLoop currentRunLoop] runUntilDate:date];
         [[NSRunLoop currentRunLoop] runMode:NSRunLoopCommonModes beforeDate:date];
-    } while (self.pinger != nil);
+    } while (nil!=self.pinger);
 }
 
 
@@ -195,7 +196,7 @@ static NSString * DisplayAddressForAddress(NSData * address)
     assert(pinger == self.pinger);
     assert(address != nil);
     
-    DDLogDebug(@"pinging %@", DisplayAddressForAddress(address));
+    DDLogDebug(@"pinging %@,host %@", DisplayAddressForAddress(address),pinger.hostName);
     
     // Send the first ping straight away.
     
@@ -236,7 +237,7 @@ static NSString * DisplayAddressForAddress(NSData * address)
 #pragma unused(pinger)
     assert(pinger == self.pinger);
 #pragma unused(packet)
-    DDLogDebug(@"#%u sent", (unsigned int) OSSwapBigToHostInt16(((const ICMPHeader *) [packet bytes])->sequenceNumber) );
+    DDLogDebug(@"#%u sent,host %@", (unsigned int) OSSwapBigToHostInt16(((const ICMPHeader *) [packet bytes])->sequenceNumber) , pinger.hostName);
 }
 
 - (void)simplePing:(SimplePing *)pinger didFailToSendPacket:(NSData *)packet error:(NSError *)error

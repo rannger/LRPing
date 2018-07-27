@@ -9,8 +9,10 @@
 #import "LRLog.h"
 #import "DDLog.h"
 
-#ifdef DEBUG
-const int ddLogLevel = DDLogLevelVerbose;
-#else
-const int ddLogLevel = DDLogLevelError;
-#endif
+//根据工程需要确定ddLogLevel
+
+//#ifdef DEBUG
+//const int ddLogLevel = DDLogLevelVerbose;
+//#else
+//const int ddLogLevel = DDLogLevelError;
+//#endif

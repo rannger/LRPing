@@ -117,6 +117,7 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen)
 {
     CFHostRef               _host;
     CFSocketRef             _socket;
+    dispatch_semaphore_t    _semaphore;
 }
 
 @synthesize hostName           = _hostName;
@@ -134,6 +135,7 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen)
     if (self != nil) {
         self->_hostName    = [hostName copy];
         self->_hostAddress = [hostAddress copy];
+        self->_semaphore   = dispatch_semaphore_create(1);
         self->_identifier  = (uint16_t) arc4random();
     }
     return self;
@@ -475,7 +477,9 @@ static void SocketReadCallback(CFSocketRef s, CFSocketCallBackType type, CFDataR
         
         // Wrap it in a CFSocket and schedule it on the runloop.
         
+        dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);//
         self->_socket = CFSocketCreateWithNative(NULL, fd, kCFSocketReadCallBack, SocketReadCallback, &context);
+        dispatch_semaphore_signal(_semaphore);
         assert(self->_socket != NULL);
         
         // The socket will now take care of cleaning up our file descriptor.
@@ -603,11 +607,13 @@ static void HostResolveCallback(CFHostRef theHost, CFHostInfoType typeInfo, cons
 - (void)stopDataTransfer   
     // Shut down anything to do with sending and receiving pings.
 {
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);//
     if (self->_socket != NULL) {
         CFSocketInvalidate(self->_socket);
         CFRelease(self->_socket);
         self->_socket = NULL;
     }
+    dispatch_semaphore_signal(_semaphore);
 }
 
 - (void)stop

@@ -14,4 +14,10 @@ extern NSString* LRPingManagerErrorNotification;
 @interface LRPingManager : NSObject
 + (instancetype)shareInstance;
 - (void)runWithHosts:(NSArray<NSString*>*)hosts;
+- (void)runWithHosts:(NSArray<NSString*>*)hosts
+   waitUntilFinished:(BOOL)waitUntilFinished; //default is NO
+- (void)runWithHosts:(NSArray<NSString *> *)hosts
+   waitUntilFinished:(BOOL)waitUntilFinished //default is NO
+             timeout:(NSTimeInterval)timeout; //default is 30
+- (void)cancelAll;
 @end
