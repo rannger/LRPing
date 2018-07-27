@@ -88,7 +88,7 @@ NSString* kHost = @"Host";
 #pragma mark - PingOperationDelegate
 - (void)lrpingOperationSuccessWithTag:(uint64_t)tag
 {
-    NSNumber* number = [NSNumber numberWithLongLong:tag];
+    NSNumber* number = [NSNumber numberWithUnsignedLongLong:tag];
     __weak typeof(self) weakSelf = self;
    
     dispatch_async(dispatch_get_main_queue() , ^{
@@ -101,14 +101,16 @@ NSString* kHost = @"Host";
 {
     NSString* fastestHost = [_hostMap objectForKey:tag];
     [self clear];
-    [[NSNotificationCenter defaultCenter] postNotificationName:LRPingManagerFastHostNotification
-                                                        object:nil
-                                                      userInfo:@{kHost:fastestHost}];
+    if ([fastestHost length]!=0) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:LRPingManagerFastHostNotification
+                                                            object:nil
+                                                          userInfo:@{kHost:fastestHost}];
+    }
 }
 
 - (void)lrpingOperationFailedWithTag:(uint64_t)tag
 {
-    NSNumber* number = [NSNumber numberWithLongLong:tag];
+    NSNumber* number = [NSNumber numberWithUnsignedLongLong:tag];
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue() , ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
@@ -117,6 +119,9 @@ NSString* kHost = @"Host";
 }
 
 - (void)lrpingOperationFailedWithTagInternal:(NSNumber*)tag {
+    if ([_failedTag count]==0) {
+        return;
+    }
     _failedTag = [_failedTag setByAddingObject:tag];
     
     NSSet* set = [NSSet setWithArray:_hostMap.allKeys];

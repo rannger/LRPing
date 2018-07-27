@@ -11,5 +11,6 @@ Pod::Spec.new do |s|
   s.source_files  =  'Classes/*.{h,m}'
   s.requires_arc  =  true
   s.dependency       'CocoaLumberjack'
-  s.framework     =  'CFNetwork', 'CoreServices'
+  s.ios.frameworks = 'CFNetwork', 'MobileCoreServices'
+  s.osx.frameworks = 'CoreServices', 'CFNetwork'
 end
