@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* LRPingManagerFastHostNotification;
-extern NSString* LRPingManagerErrorNotification;
+extern NSString* const LRPingManagerFastHostNotification;
+extern NSString* const LRPingManagerErrorNotification;
 
 @interface LRPingManager : NSObject
 + (instancetype)shareInstance;

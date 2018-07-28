@@ -10,14 +10,14 @@
 #import "LRPingOperation.h"
 
 
-NSString* LRPingManagerFastHostNotification = @"PingManagerFastHostNotification";
-NSString* LRPingManagerErrorNotification = @"PingManagerErrorNotification";
-NSString* kHost = @"Host";
+NSString* const LRPingManagerFastHostNotification = @"PingManagerFastHostNotification";
+NSString* const LRPingManagerErrorNotification = @"PingManagerErrorNotification";
+NSString* const kHost = @"Host";
 
 @interface LRPingManager () <LRPingOperationDelegate>
 @property (nonatomic,strong) NSOperationQueue* queue;
-@property (nonatomic,strong) NSDictionary* hostMap;
-@property (nonatomic,strong) NSSet* failedTag;
+@property NSDictionary* hostMap;
+@property NSSet* failedTag;
 
 @end
 
@@ -59,18 +59,18 @@ NSString* kHost = @"Host";
         [map setObject:host forKey:@(host.hash)];
     }
     
-    _hostMap = [NSDictionary dictionaryWithDictionary:map];
-    _failedTag = [NSSet set];
-    NSMutableArray* ops = [NSMutableArray arrayWithCapacity:_hostMap.count];
-    for (NSNumber* key in [_hostMap allKeys]) {
-        NSString* host = [_hostMap objectForKey:key];
+    self.hostMap = [NSDictionary dictionaryWithDictionary:map];
+    self.failedTag = [NSSet set];
+    NSMutableArray* ops = [NSMutableArray arrayWithCapacity:self.hostMap.count];
+    for (NSNumber* key in [self.hostMap allKeys]) {
+        NSString* host = [self.hostMap objectForKey:key];
         LRPingOperation* op = [[LRPingOperation alloc] initWithTag:[key longLongValue] host:host];
         op.timeoutLimit = timeout;
         op.delegate = self;
         [ops addObject:op];
     }
     [_queue cancelAllOperations];
-    _queue.maxConcurrentOperationCount = [_hostMap count];
+    _queue.maxConcurrentOperationCount = [self.hostMap count];
     [_queue addOperations:[NSArray arrayWithArray:ops] waitUntilFinished:waitUntilFinished];
 }
 
@@ -81,8 +81,8 @@ NSString* kHost = @"Host";
 
 - (void)clear {
     [_queue cancelAllOperations];
-    _hostMap = nil;
-    _failedTag = nil;
+    self.hostMap = nil;
+    self.failedTag = nil;
 }
 
 #pragma mark - PingOperationDelegate
@@ -99,7 +99,7 @@ NSString* kHost = @"Host";
 
 - (void)lrpingOperationSuccessWithTagInternal:(NSNumber*)tag
 {
-    NSString* fastestHost = [_hostMap objectForKey:tag];
+    NSString* fastestHost = [self.hostMap objectForKey:tag];
     [self clear];
     if ([fastestHost length]!=0) {
         [[NSNotificationCenter defaultCenter] postNotificationName:LRPingManagerFastHostNotification
@@ -119,13 +119,13 @@ NSString* kHost = @"Host";
 }
 
 - (void)lrpingOperationFailedWithTagInternal:(NSNumber*)tag {
-    if ([_failedTag count]==0) {
+    if ([self.failedTag count]==0) {
         return;
     }
-    _failedTag = [_failedTag setByAddingObject:tag];
+    self.failedTag = [self.failedTag setByAddingObject:tag];
     
-    NSSet* set = [NSSet setWithArray:_hostMap.allKeys];
-    if ([set isEqualToSet:_failedTag]) {
+    NSSet* set = [NSSet setWithArray:self.hostMap.allKeys];
+    if ([set isEqualToSet:self.failedTag]) {
         [self clear];
         [[NSNotificationCenter defaultCenter] postNotificationName:LRPingManagerErrorNotification object:nil];
     }
