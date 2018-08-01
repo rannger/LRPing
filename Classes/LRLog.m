@@ -11,8 +11,8 @@
 
 //根据工程需要确定ddLogLevel
 
-//#ifdef DEBUG
-//const int ddLogLevel = DDLogLevelVerbose;
-//#else
-//const int ddLogLevel = DDLogLevelError;
-//#endif
+#ifdef DEBUG
+const int ddLogLevel = DDLogLevelVerbose;
+#else
+const int ddLogLevel = DDLogLevelError;
+#endif
